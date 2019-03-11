@@ -76,94 +76,12 @@ sudo make install
 sudo ln -s /usr/lib64/nginx/modules /etc/nginx/modules
 mkdir -p /var/cache/nginx/
 cd /lib/systemd/system/
-
-echo '[Unit]
-Description=nginx - high performance web server
-Documentation=https://nginx.org/en/docs/
-After=network-online.target remote-fs.target nss-lookup.target
-Wants=network-online.target
-
-[Service]
-Type=forking
-PIDFile=/var/run/nginx.pid
-ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/nginx.conf
-ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s TERM $MAINPID
-
-[Install]
-WantedBy=multi-user.target' > nginx.service
-
+wget https://raw.githubusercontent.com/vgostyahumarki/RestreamServerInstaller/master/nginx.service
 systemctl daemon-reload
 systemctl start nginx
 systemctl enable nginx
 cd /etc/nginx/
-
-echo 'worker_processes  auto;
-user root;
-events {
-    worker_connections  1024;
-}
-
-# RTMP configuration
-rtmp {
-    server {
-        listen 1935; # Listen on standard RTMP port
-        chunk_size 4000;
-
-# Define the Application
-        application show {
-            live on;
-            # Turn on HLS
-            hls on;
-            hls_path /mnt/hls/;
-            hls_fragment 3;
-            hls_playlist_length 60;
-            # disable consuming the stream from nginx as rtmp
-            deny play all;
-        }
-
-    }
-}
-
-http {
-    sendfile off;
-    tcp_nopush on;
-    aio on;
-    directio 512;
-    default_type application/octet-stream;
-
-    server {
-        listen 8080;
-
-        location / {
-            # Disable cache
-            add_header 'Cache-Control' 'no-cache';
-
-            # CORS setup
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Expose-Headers' 'Content-Length';
-
-            # allow CORS preflight requests
-            if ($request_method = 'OPTIONS') {
-                add_header 'Access-Control-Allow-Origin' '*';
-                add_header 'Access-Control-Max-Age' 1728000;
-                add_header 'Content-Type' 'text/plain charset=UTF-8';
-                add_header 'Content-Length' 0;
-                return 204;
-            }
-
-            types {
-                application/dash+xml mpd;
-                application/vnd.apple.mpegurl m3u8;
-                video/mp2t ts;
-            }
-
-            root /mnt/;
-        }
-    }
-}' > nginx.conf
-
+wget https://raw.githubusercontent.com/vgostyahumarki/RestreamServerInstaller/master/nginx.conf
 mkdir -p /mnt/hls
 nginx -t
 systemctl restart nginx

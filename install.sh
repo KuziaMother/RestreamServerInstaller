@@ -81,6 +81,7 @@ systemctl daemon-reload
 systemctl start nginx
 systemctl enable nginx
 cd /etc/nginx/
+rm nginx.conf
 wget https://raw.githubusercontent.com/vgostyahumarki/RestreamServerInstaller/master/nginx.conf
 mkdir -p /mnt/hls
 nginx -t
